@@ -2,12 +2,12 @@ from tkinter import *
 from tkinter import filedialog
 import json
 import Brains
-
+from additional_settings import additional_settings
 root = Tk()
 root.title("Classification Selection Tool")
 root.minsize(350,250)
 root.geometry("350x550")
-height_widget = 150
+height_widget = 175
 width_widget = 250
 
 global selectedclassifier 
@@ -24,10 +24,12 @@ paths = [' ']*2
 global settings
 global auto_generated_settings
 global user_settings
+global classifier_settings
 
 settings = {}
 user_settings = {}
 auto_generated_settings = {}
+classifier_settings = {}
 
 
 def classifier_selection():
@@ -41,16 +43,27 @@ def classifier_selection():
         ("MLP Classifier","MLP"),
         ("Auto Select", "Auto")]
 
+    
+    
+    def c_settings():
+        if(selectedclassifier.get() == "Auto"):
+            Settings_button.config(state=DISABLED)            
+        else:           
+            Settings_button.config(state=NORMAL)
+
     for classifier,value in classifiers:
-        Radiobutton(classifierframe,text=classifier, variable=selectedclassifier,value=value).pack(anchor=W)
+        Radiobutton(classifierframe,text=classifier, variable=selectedclassifier,value=value,command=c_settings).pack(anchor=W)
+    
+    Settings_button = Button(classifierframe,text="Additional Settings",
+                     command=lambda:additional_settings(selectedclassifier.get()),state=NORMAL)
+    Settings_button.pack(anchor=E,padx=10)
+
+    
 
     classifierframe.pack_propagate(0)
     classifierframe.pack(pady=10)
 
-   
 
-
-        
 def file_selection(): 
 
     fileframe = LabelFrame(root,text="Classifier Data Setup",pady=10)
