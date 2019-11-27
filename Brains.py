@@ -1,6 +1,8 @@
 import pandas as pd
 import numpy as np
 
+raw_file = []
+
 def get_number_of_cols(path):
     file = pd.read_csv(path,nrows=1)
     return len(file)
@@ -25,3 +27,10 @@ def get_number_of_classes(path):
     temp_list = unique_list
     temp_list.sort()
     return unique_list.index(temp_list[0:5]) """
+
+def classify(path,user_settings,classifier_settings):
+    global raw_file
+    raw_file = pd.read_csv(path)
+def classify_KNN(classifier_settings):
+    from sklearn.neighbors import KNeighborsClassifier
+    clf_KNN = KNeighborsClassifier(n_neighbors=classifier_settings["K"], weights=classifier_settings["weights"])

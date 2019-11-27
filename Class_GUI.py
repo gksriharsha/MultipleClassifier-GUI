@@ -10,7 +10,7 @@ root.geometry("350x550")
 height_widget = 175
 width_widget = 250
 
-global selectedclassifier 
+
 selectedclassifier = StringVar()
 selectedclassifier.set("Auto")
 
@@ -18,21 +18,21 @@ global fileoptn
 fileoptn = StringVar() 
 fileoptn.set("Two files")
 
-global paths
+
 paths = [' ']*2
 
 global settings
 global auto_generated_settings
 global user_settings
-global classifier_settings
 
 settings = {}
 user_settings = {}
 auto_generated_settings = {}
-classifier_settings = {}
+
 
 
 def classifier_selection():
+    global selectedclassifier 
     classifierframe = LabelFrame(root,text="Choose the classifier",pady=10)
     classifierframe.config(height=height_widget,width=width_widget)
     
@@ -45,17 +45,17 @@ def classifier_selection():
 
     
     
-    def c_settings():
+    def radio_settings(): 
         if(selectedclassifier.get() == "Auto"):
             Settings_button.config(state=DISABLED)            
         else:           
             Settings_button.config(state=NORMAL)
 
     for classifier,value in classifiers:
-        Radiobutton(classifierframe,text=classifier, variable=selectedclassifier,value=value,command=c_settings).pack(anchor=W)
+        Radiobutton(classifierframe,text=classifier, variable=selectedclassifier,value=value,command=radio_settings).pack(anchor=W)
     
     Settings_button = Button(classifierframe,text="Additional Settings",
-                     command=lambda:additional_settings(selectedclassifier.get()),state=NORMAL)
+                     command=lambda:additional_settings(selectedclassifier.get()),state=DISABLED)
     Settings_button.pack(anchor=E,padx=10)
 
     
@@ -69,7 +69,8 @@ def file_selection():
     fileframe = LabelFrame(root,text="Classifier Data Setup",pady=10)
     fileframe.config(height=300,width=width_widget)
 
-    def file_number_choose(fileoptn):   
+    def file_number_choose(fileoptn):  
+        global paths 
         if(fileoptn.get() == "One file"):
             data_button.config(text="Open Data + Labels file")        
             label_button.config(state="disabled")
@@ -88,6 +89,7 @@ def file_selection():
     label_path = Entry(fileframe,state='readonly',relief=SUNKEN,width=80,textvariable=file_path_labels)
 
     def data_openfile():
+        global paths
         root.filename = filedialog.askopenfilename(initialdir="/", title="Select Data for Classification", filetypes=(("csv files", "*.csv"),("all files", "*.*")))   
         paths[0] = root.filename        
         if(paths):            
@@ -95,9 +97,10 @@ def file_selection():
             data_path.insert(0,str(paths[0]))
             file_path_data.set(paths[0])
             
-        Label(root, text=root.filename).pack()
+        
 
     def label_openfile():
+        global paths
         root.filename = filedialog.askopenfilename(initialdir="/", title="Select Labels for Classification", filetypes=(("csv files", "*.csv"),("all files", "*.*")))   
         paths[1] = root.filename
         if(paths):
@@ -128,14 +131,22 @@ def click_button():
     def clicked(value1,value2):
         myLabel = Label(root, text=value1+" "+value2)
         myLabel.pack()
-        finalize()	
-    myButton = Button(root, text="Classify", state=DISABLED,command=lambda: clicked(selectedclassifier.get(),fileoptn.get()))
+        finalize()
+
+      
+    myButton = Button(root, text="Classify", state=DISABLED,
+                command=lambda: clicked(selectedclassifier.get(),fileoptn.get()))
     
-    if((len(paths[1]) >= 10 and fileoptn.get() == "Two files") or (len(paths[0]) >= 10 and fileoptn.get() == "One file")):
-        myButton.config(state=NORMAL)    
+    def button_check(self):
+        if((len(paths[1]) >= 2 and fileoptn.get() == "Two files") or (len(paths[0]) >= 2 and fileoptn.get() == "One file")):
+            myButton.config(state=NORMAL)
+        else:
+            myButton.config(state=DISABLED)
+    myButton.bind("<Enter>",button_check)    
     myButton.pack(pady=10)
 
-def write_settings():    
+def write_settings():
+    global selectedclassifier     
     user_settings['Number of files'] = fileoptn.get()
     user_settings['Classifier'] = selectedclassifier.get()
     auto_generated_settings['Features'] = Brains.get_number_of_cols(paths[0])
