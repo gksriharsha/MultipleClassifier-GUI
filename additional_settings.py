@@ -99,7 +99,8 @@ def MLP(settings_window):
 def additional_settings(value):
     global classifier_settings
     with open('settings.json') as f:
-        classifier_settings = json.load(f)
+        settings = json.load(f)
+    classifier_settings = settings["Classifier settings"]
     settings_window = Toplevel(padx=10,pady=10)
     settings_window.grab_set()
     settings_window.resizable(False,False)       
