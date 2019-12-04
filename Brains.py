@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from sklearn.metrics import accuracy_score
 import json
+import os
 
 raw_file = []
 data_test = []
@@ -42,27 +43,33 @@ def get_number_of_classes(path):
     temp_list = unique_list
     temp_list.sort()
     return unique_list.index(temp_list[0:5]) """
+def big_data_classify():
+    print("File size too large - Module under implementation")
 
 def classify(paths,user_settings,classifier_settings):
     from sklearn.model_selection import train_test_split 
     global raw_file,label_test,label_train,data_test,data_train,cols,labels  
     cols = get_number_of_cols(paths[0])
-    if(user_settings["Headers"] == "Yes"):
-        raw_file = pd.read_csv(paths[0],skiprows=1)
-        if(user_settings['Number of files'] == "One file"):            
-            dfs = np.split(raw_file,[cols-2],axis=1)
-            data = dfs[0]
-            labels = dfs[1]            
+    file_size = os.stat(paths[0]).st_size/(1024*1024)
+    if(file_size<1):
+        if(user_settings["Headers"] == "Yes"):
+            raw_file = pd.read_csv(paths[0],skiprows=1)
+            if(user_settings['Number of files'] == "One file"):            
+                dfs = np.split(raw_file,[cols-2],axis=1)
+                data = dfs[0]
+                labels = dfs[1]            
+            else:
+                labels = pd.read_csv(paths[1],skiprows=1)
         else:
-            labels = pd.read_csv(paths[1],skiprows=1)
+            raw_file = pd.read_csv(paths[0])
+            if(user_settings['Number of files'] == "One file"):            
+                dfs = np.split(raw_file,[cols-2],axis=1)
+                data = dfs[0]
+                labels = dfs[1]
+            else:
+                labels = pd.read_csv(paths[1])    
     else:
-        raw_file = pd.read_csv(paths[0])
-        if(user_settings['Number of files'] == "One file"):            
-            dfs = np.split(raw_file,[cols-2],axis=1)
-            data = dfs[0]
-            labels = dfs[1]
-        else:
-            labels = pd.read_csv(paths[1])            
+        big_data_classify()        
     
     data_train, data_test, label_train, label_test = train_test_split(data, labels, test_size=0.33, random_state=42)
     if(user_settings['Classifier'] == "KNN"):
