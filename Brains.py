@@ -1,7 +1,12 @@
 import pandas as pd
 import numpy as np
 from sklearn.metrics import accuracy_score
-import json
+from sklearn.metrics import f1_score
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import precision_score
+from sklearn.metrics import recall_score
+from sklearn.metrics import multilabel_confusion_matrix
+import json,codecs
 import pickle
 
 raw_file = []
@@ -10,6 +15,7 @@ data_train = []
 label_test = []
 label_train = []
 labels = []
+pred= []
 classifier_results = {}
 rows = 0
 cols = 0
@@ -54,12 +60,23 @@ def classify(paths,user_settings,classifier_settings):
     elif(user_settings['Classifier'] == "MLP"):
         classify_MLP(classifier_settings)
     else:
-        auto_classify(paths)
-    print("End of classification")
+        auto_classify(user_settings,paths)
+        
+    acc = accuracy_score(label_test,pred)*100
+    classifier_results["Accuracy"] = acc
+    fscore = f1_score(label_test,pred)*100
+    classifier_results["F1 Score"] = fscore
+    pscore = precision_score(label_test,pred)*100 
+    classifier_results["Precision"] = pscore
+    rscore = recall_score(label_test,pred)*100
+    classifier_results["Recall"] = rscore
+    conf_matrix = multilabel_confusion_matrix(label_test,pred)
+    json.dump(conf_matrix.tolist(),codecs.open('/conf.json','w', encoding='utf-8'), separators=(',', ':'), sort_keys=True, indent=4)
     write_results()
+    print("End of classification")
 
 def classify_KNN(classifier_settings):
-    global classifier_results,data_test,data_train,label_test,label_train
+    global classifier_results,data_test,data_train,label_test,label_train,pred
     from sklearn.neighbors import KNeighborsClassifier    
     if(bool(classifier_settings)):
         clf_KNN = KNeighborsClassifier(n_neighbors=classifier_settings['K'], weights=classifier_settings['weights'])
@@ -68,13 +85,10 @@ def classify_KNN(classifier_settings):
     clf_KNN.fit(data_train,label_train)
     pickle.dump(clf_KNN,open('Model.mdl','wb'))
     pred = clf_KNN.predict(data_test)    
-    acc = accuracy_score(label_test,pred)*100
-    classifier_results["Accuracy"] = acc
-    print(acc)
-    #return classifier_results
+    
 
 def classify_SVM(classifier_settings):
-    global classifier_results,data_test,data_train,label_test,label_train
+    global classifier_results,data_test,data_train,label_test,label_train,pred
     from sklearn.svm import SVC    
     if(bool(classifier_settings)):
         clf_SVM = SVC(degree=int(classifier_settings["Degree"]),tol=float(classifier_settings["tol"]))
@@ -83,13 +97,10 @@ def classify_SVM(classifier_settings):
     clf_SVM.fit(data_train,label_train)
     pred = clf_SVM.predict(data_test)
     pickle.dump(clf_SVM,open('Model.mdl','wb'))
-    acc = accuracy_score(label_test,pred)*100
-    classifier_results["Accuracy"] = acc
-    print(acc)
-    #return classifier_results
+
 
 def classify_MLP(classifier_settings):
-    global classifier_results,data_test,data_train,label_test,label_train    
+    global classifier_results,data_test,data_train,label_test,label_train,pred    
     from sklearn.neural_network import MLPClassifier
     if(bool(classifier_settings)):
         clf_MLP =  MLPClassifier(solver='lbfgs',hidden_layer_sizes=(5, 2),
@@ -99,12 +110,9 @@ def classify_MLP(classifier_settings):
     clf_MLP.fit(data_train,label_train)
     pred = clf_MLP.predict(data_test)
     pickle.dump(clf_MLP,open('Model.mdl','wb'))
-    acc = accuracy_score(label_test,pred)*100
-    classifier_results["Accuracy"] = acc
-    print(acc)
-    #return classifier_results
-
-def auto_classify(paths):
+    
+   
+def auto_classify(user_settings,paths):
     global classes,cols,rows,classifier_results
     classifier_settings = {}
     if(classes == 0):
@@ -117,15 +125,32 @@ def auto_classify(paths):
     NGI = rows/(classes*cols)
 
     if(NGI<1):
+        classifier_settings = {}
+        classifier_settings["Activation Func."] = "tanh"
+        classifier_settings["Iterations"] = 200000
+        classifier_settings["Tolerance"] = 0.00005
         classify_MLP(classifier_settings)
         classifier_results["selected classifier"] = "MLP"
     elif(NGI>1 and NGI <10):
+        classifier_settings = {}
+        classifier_settings["Degree"] = 11
+        classifier_settings["tol"] = 0.0001
         classify_SVM(classifier_settings)
         classifier_results["selected classifier"] = "SVM"
     else:
+        classifier_settings = {}
+        classifier_settings["K"] = 27
+        classifier_settings["weights"] = "distance"
         classify_KNN(classifier_settings)
         classifier_results["selected classifier"] = "KNN"
-
+    settings = {}
+    settings['Classifier settings'] = classifier_settings
+    settings['User selected settings'] = user_settings
+    write_settings(settings)  
+def write_settings(settings):
+    f = open("settings.json",'w+') 
+    f.write(json.dumps(settings,indent=4))
+    f.close() 
 def write_results():
     f=open("results.json","w+")
     f.write(json.dumps(classifier_results,indent=4))

@@ -1,7 +1,7 @@
 from tkinter import *
 from tkinter import filedialog
 from tkinter import ttk
-from ttkthemes import themed_tk as tk
+#from ttkthemes import themed_tk as tk
 import json
 import Brains
 import DatasetInsights as insights
@@ -9,7 +9,7 @@ import additional_settings as Settings
 import additional_results as results
 root = Tk()
 root.title("Classification Selection Tool")
-root.geometry("350x725")
+root.geometry("350x700")
 #root.resizable(False,False)
 height_widget = 175
 width_widget = 250
@@ -67,7 +67,7 @@ def classifier_selection():
             classifier_settings = {}
             classifier_settings["K"] = 3
             classifier_settings["weights"] = "uniform"
-        else:            
+        else:           
             Settings_button.config(state=DISABLED)           
         
         settings["Classifier settings"] = classifier_settings
@@ -84,8 +84,6 @@ def classifier_selection():
     Settings_button = Button(classifierframe,text="Additional Settings",
                      command=settings_clicked,state=DISABLED)
     Settings_button.pack(anchor=E,padx=10)
-
-    
 
     classifierframe.pack_propagate(0)
     classifierframe.pack(pady=10)
@@ -140,41 +138,45 @@ def file_selection():
 
     data_button = Button(fileframe,text="Open Data file",command=data_openfile)
     label_button = Button(fileframe,text="Open Labels file",command=label_openfile)
-    Insights_button = Button(fileframe,text="Dataset Properties",command=lambda: insights.getInsights(paths[0]))
+    Insights_button = Button(fileframe,text="Dataset Properties",command=lambda: insights.getInsights(paths[0]),state=DISABLED)
     data_button.pack(padx=5,pady=10,anchor=W)
     data_path.pack(padx=5,pady=10,anchor=W)
     label_button.pack(padx=5,pady=10,anchor=W)
     label_path.pack(padx=5,pady=10,anchor=W)
     Insights_button.pack(padx=5,anchor=S)
-
+    def insight_check(self):
+        if((len(paths[1]) >= 2 and fileoptn.get() == "Two files") or (len(paths[0]) >= 2 and fileoptn.get() == "One file")):
+            Insights_button.config(state=NORMAL)
+        else:
+            Insights_button.config(state=DISABLED)
+    fileframe.bind("<Enter>",insight_check)
     fileframe.pack_propagate(0)
     fileframe.pack()
 
 def mini_results():
     global accuracy
     
-    resultsFrame = LabelFrame(root,text="Results",pady=10)
-    #resultsFrame.config(width=250)
+    miniresultsFrame = LabelFrame(root,text="Results",padx=10,pady=10)  
+    miniresultsFrame.config(height=100,width=width_widget)
     
-   
     with open('settings.json') as f:
         settings = json.load(f)    
         
-    Label(resultsFrame,text="Classifier used:    ").grid(row=0,column=0,pady=10)
-    Entry(resultsFrame,textvariable=classifier,relief=FLAT,state='readonly').grid(row=0,column=1,pady=10)
-    if(settings["User selected settings"]["Classifier"] == "Auto"):
-        Entry(resultsFrame,textvariable=classifier1,relief=FLAT,state='readonly').grid(row=0,column=2,pady=10)
-    Label(resultsFrame,text="Accuracy:    ").grid(row=1,column=0)
-    Entry(resultsFrame,textvariable=accuracy,relief=FLAT,state='readonly').grid(row=1,column=1,pady=10)
+    Label(miniresultsFrame,text="Classifier used:    ").grid(row=0,column=0,pady=10)
+    Entry(miniresultsFrame,textvariable=classifier,state='readonly',width=10,relief=FLAT).grid(row=0,column=1,pady=10)
+    Entry(miniresultsFrame,textvariable=classifier1,state='readonly',width=10,relief=FLAT).grid(row=0,column=2,pady=10)
+    Label(miniresultsFrame,text="Accuracy:    ").grid(row=1,column=0)
+    Entry(miniresultsFrame,textvariable=accuracy,relief=FLAT,state='readonly').grid(row=1,column=1,pady=10,columnspan=2)
     
-    resultsFrame.pack_propagate(0)
-    resultsFrame.pack()      
+    Button(miniresultsFrame,text="Detailed Results",command=lambda: results.showresults()).grid(row=2,column=0,columnspan=3)
+    miniresultsFrame.pack_propagate(0)
+    #miniresultsFrame.grid_propagate(False)
+    miniresultsFrame.pack()      
 def click_button():
     def classify():
         write_settings()
         finalize()
-
-      
+    
     myButton = Button(root, text="Classify", state=DISABLED,command=classify)
     
     def button_check(self):
@@ -208,8 +210,10 @@ def finalize():
     global accuracy,classifier
     accuracy.set(str("%0.3f" % results['Accuracy'])+' %')
     classifier.set(settings["User selected settings"]["Classifier"])
-    classifier1.set(results["selected classifier"])
-    #results.showresults()    
+    if(settings["User selected settings"]["Classifier"] == "Auto"):
+        classifier1.set(results["selected classifier"])   
+    else:
+        classifier1.set("") 
 
     
     

@@ -1,7 +1,9 @@
 from tkinter import *
 import json
 try:
-    classifier_settings
+    with open('settings.json') as f:
+        settings = json.load(f)
+    classifier_settings = settings['Classifier settings']   
 except:
     classifier_settings = {} 
 def isint(number):

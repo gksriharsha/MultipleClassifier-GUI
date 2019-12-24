@@ -1,5 +1,6 @@
 from tkinter import *
-import json
+import json,codecs
+import numpy as np
 
 def showresults():
     with open('results.json','r') as f:
@@ -9,7 +10,7 @@ def showresults():
     results_window = Toplevel()
     results_window.grab_set()
 
-    summaryframe = LabelFrame(results_window,text="Parameters of Classification",pady=10)
+    summaryframe = LabelFrame(results_window,text="Parameters of Classification",pady=10,width=250)
     
     Label(summaryframe,text="Classifier used:    ").grid(row=0,column=0,pady=10)
     Label(summaryframe,text=settings["User selected settings"]["Classifier"]).grid(row=0,column=1,pady=10)
@@ -28,9 +29,22 @@ def showresults():
         print(e)
     
     summaryframe.pack(padx=10,pady=10)
-    resultsframe = LabelFrame(results_window,text="Results of Classification",pady=10)
-    Label(resultsframe,text="Accuracy:    ").grid(row=0,column=0)
-    Label(resultsframe,text=str("%0.3f" % results['Accuracy'])+' %').grid(row=0,column=1,pady=10)
+    
+    obj_text = codecs.open('/conf.json', 'r', encoding='utf-8').read()
+    b_new = json.loads(obj_text)
+    conf = np.array(b_new)
+    
+    resultsframe = LabelFrame(results_window,text="Results of Classification",pady=10,width=250)
+    Label(summaryframe,text="Classification results:    ").grid(row=1,column=0)
+    Label(summaryframe,text='Confusion Matrix').grid(row=2,column=0,pady=5)
+    Label(summaryframe,text= conf).grid(row=2,column=1,pady=5)
+    
+    i = 3
+    for key,value in results.items():
+        Label(summaryframe,text=key).grid(row=i,column=0,pady=5)
+        Label(summaryframe,text=value).grid(row=i,column=1,pady=5)
+        i = i+1
+    
     resultsframe.pack(pady=10,padx=10)      
 
 
