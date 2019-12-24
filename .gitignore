@@ -1,3 +1,10 @@
 *pycache*
 *.json
 *.vscode*
+build
+dist
+*.spec
+*test*
+*.csv
+*Impro*
+*.mdl

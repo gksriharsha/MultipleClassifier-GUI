@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from sklearn.metrics import accuracy_score
 import json
+import pickle
 
 raw_file = []
 data_test = []
@@ -32,38 +33,19 @@ def get_number_of_classes(path):
     classes = len(np.unique(file.iloc[:,cols-1]))
     return classes
 
-""" def search_classes(path):
-    cols = get_number_of_cols(path)
-    file = pd.read_csv(path)
-    unique_list = [0] * cols
-    for ind in reversed(range(cols)):
-        column = file.iloc[:,ind]
-        unique_list[ind] = len(np.unique(column)) 
-    temp_list = unique_list
-    temp_list.sort()
-    return unique_list.index(temp_list[0:5]) """
-
 def classify(paths,user_settings,classifier_settings):
     from sklearn.model_selection import train_test_split 
     global raw_file,label_test,label_train,data_test,data_train,cols,labels  
-    cols = get_number_of_cols(paths[0])
-    if(user_settings["Headers"] == "Yes"):
-        raw_file = pd.read_csv(paths[0],skiprows=1)
-        if(user_settings['Number of files'] == "One file"):            
-            dfs = np.split(raw_file,[cols-2],axis=1)
-            data = dfs[0]
-            labels = dfs[1]            
-        else:
-            labels = pd.read_csv(paths[1],skiprows=1)
-    else:
-        raw_file = pd.read_csv(paths[0])
-        if(user_settings['Number of files'] == "One file"):            
-            dfs = np.split(raw_file,[cols-2],axis=1)
-            data = dfs[0]
-            labels = dfs[1]
-        else:
-            labels = pd.read_csv(paths[1])            
+    cols = get_number_of_cols(paths[0])    
+    raw_file = pd.read_csv(paths[0])
     
+    if(user_settings['Number of files'] == "One file"):            
+        dfs = np.split(raw_file,[cols-2],axis=1)
+        data = dfs[0]
+        labels = dfs[1]            
+    else:
+        labels = pd.read_csv(paths[1])
+        
     data_train, data_test, label_train, label_test = train_test_split(data, labels, test_size=0.33, random_state=42)
     if(user_settings['Classifier'] == "KNN"):
         classify_KNN(classifier_settings)
@@ -84,6 +66,7 @@ def classify_KNN(classifier_settings):
     else:
         clf_KNN = KNeighborsClassifier(n_neighbors=3)
     clf_KNN.fit(data_train,label_train)
+    pickle.dump(clf_KNN,open('Model.mdl','wb'))
     pred = clf_KNN.predict(data_test)    
     acc = accuracy_score(label_test,pred)*100
     classifier_results["Accuracy"] = acc
@@ -99,6 +82,7 @@ def classify_SVM(classifier_settings):
         clf_SVM = SVC()
     clf_SVM.fit(data_train,label_train)
     pred = clf_SVM.predict(data_test)
+    pickle.dump(clf_SVM,open('Model.mdl','wb'))
     acc = accuracy_score(label_test,pred)*100
     classifier_results["Accuracy"] = acc
     print(acc)
@@ -114,6 +98,7 @@ def classify_MLP(classifier_settings):
         clf_MLP =  MLPClassifier()
     clf_MLP.fit(data_train,label_train)
     pred = clf_MLP.predict(data_test)
+    pickle.dump(clf_MLP,open('Model.mdl','wb'))
     acc = accuracy_score(label_test,pred)*100
     classifier_results["Accuracy"] = acc
     print(acc)

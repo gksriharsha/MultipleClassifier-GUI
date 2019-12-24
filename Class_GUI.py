@@ -1,12 +1,16 @@
 from tkinter import *
 from tkinter import filedialog
+from tkinter import ttk
+from ttkthemes import themed_tk as tk
 import json
 import Brains
+import DatasetInsights as insights
 import additional_settings as Settings
+import additional_results as results
 root = Tk()
 root.title("Classification Selection Tool")
-root.geometry("350x550")
-root.resizable(False,False)
+root.geometry("350x725")
+#root.resizable(False,False)
 height_widget = 175
 width_widget = 250
 
@@ -26,8 +30,10 @@ global user_settings
 
 settings = {}
 user_settings = {}
-containsHeaders = {}
 
+accuracy = StringVar()
+classifier = StringVar()
+classifier1 = StringVar()
 
 def classifier_selection():
     global selectedclassifier 
@@ -134,22 +140,35 @@ def file_selection():
 
     data_button = Button(fileframe,text="Open Data file",command=data_openfile)
     label_button = Button(fileframe,text="Open Labels file",command=label_openfile)
+    Insights_button = Button(fileframe,text="Dataset Properties",command=lambda: insights.getInsights(paths[0]))
     data_button.pack(padx=5,pady=10,anchor=W)
     data_path.pack(padx=5,pady=10,anchor=W)
     label_button.pack(padx=5,pady=10,anchor=W)
     label_path.pack(padx=5,pady=10,anchor=W)
-
-    global containsHeaders
-    containsHeaders = StringVar()
-    c = Checkbutton(fileframe, text="Contains Header names", variable=containsHeaders, onvalue="Yes", offvalue="No")
-    c.deselect()
-    c.pack(pady=10)
+    Insights_button.pack(padx=5,anchor=S)
 
     fileframe.pack_propagate(0)
     fileframe.pack()
 
-
-
+def mini_results():
+    global accuracy
+    
+    resultsFrame = LabelFrame(root,text="Results",pady=10)
+    #resultsFrame.config(width=250)
+    
+   
+    with open('settings.json') as f:
+        settings = json.load(f)    
+        
+    Label(resultsFrame,text="Classifier used:    ").grid(row=0,column=0,pady=10)
+    Entry(resultsFrame,textvariable=classifier,relief=FLAT,state='readonly').grid(row=0,column=1,pady=10)
+    if(settings["User selected settings"]["Classifier"] == "Auto"):
+        Entry(resultsFrame,textvariable=classifier1,relief=FLAT,state='readonly').grid(row=0,column=2,pady=10)
+    Label(resultsFrame,text="Accuracy:    ").grid(row=1,column=0)
+    Entry(resultsFrame,textvariable=accuracy,relief=FLAT,state='readonly').grid(row=1,column=1,pady=10)
+    
+    resultsFrame.pack_propagate(0)
+    resultsFrame.pack()      
 def click_button():
     def classify():
         write_settings()
@@ -166,13 +185,10 @@ def click_button():
     root.bind("<Enter>",button_check)    
     myButton.pack(pady=10)
 
-    
-
 def write_settings():
     global selectedclassifier     
     user_settings['Number of files'] = fileoptn.get()
     user_settings['Classifier'] = selectedclassifier.get()
-    user_settings["Headers"] = containsHeaders.get()
     settings['User selected settings'] = user_settings
     if(Settings.classifier_settings == {}):
         pass
@@ -185,43 +201,22 @@ def write_settings():
 
 def finalize():
     Brains.classify(paths,user_settings,Settings.classifier_settings)
+    
     with open('results.json','r') as f:
-        results = json.load(f)
-    with open('settings.json') as f:
-        settings = json.load(f)
-    global results_window
-    results_window = Toplevel()
-    results_window.grab_set()
+       results = json.load(f)
+       
+    global accuracy,classifier
+    accuracy.set(str("%0.3f" % results['Accuracy'])+' %')
+    classifier.set(settings["User selected settings"]["Classifier"])
+    classifier1.set(results["selected classifier"])
+    #results.showresults()    
 
-    summaryframe = LabelFrame(results_window,text="Parameters of Classification",pady=10)
     
-    Label(summaryframe,text="Classifier used:    ").grid(row=0,column=0,pady=10)
-    Label(summaryframe,text=settings["User selected settings"]["Classifier"]).grid(row=0,column=1,pady=10)
-    if(settings["User selected settings"]["Classifier"] == "Auto"):
-        Label(summaryframe,text=results["selected classifier"]).grid(row=0,column=2,pady=10)
-      
-    try:
-        i=2
-        Label(summaryframe,text="Classifier settings:    ").grid(row=1,column=0)
-        for key,value in settings["Classifier settings"].items():
-            Label(summaryframe,text=key).grid(row=i,column=0,pady=5)
-            Label(summaryframe,text=value).grid(row=i,column=1,pady=5)
-            i = i+1
-    except Exception as e:
-        print("Exception raised")
-        print(e)
     
-    summaryframe.pack(padx=10,pady=10)
-    resultsframe = LabelFrame(results_window,text="Results of Classification",pady=10)
-    Label(resultsframe,text="Accuracy:    ").grid(row=0,column=0)
-    Label(resultsframe,text=str("%0.3f" % results['Accuracy'])+' %').grid(row=0,column=1,pady=10)
-    resultsframe.pack(pady=10,padx=10)      
-
-
-
 classifier_selection()
 file_selection()
 click_button()
+mini_results()
 
 
 root.mainloop()
