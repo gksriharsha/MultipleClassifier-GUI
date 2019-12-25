@@ -1,12 +1,14 @@
 from tkinter import *
 from tkinter import filedialog
 from tkinter import ttk
+import numpy as np
 #from ttkthemes import themed_tk as tk
 import json
 import Brains
 import DatasetInsights as insights
 import additional_settings as Settings
 import additional_results as results
+import FileChecks as checks
 root = Tk()
 root.title("Classification Selection Tool")
 root.geometry("350x700")
@@ -29,12 +31,17 @@ global settings
 global user_settings
 
 settings = {}
+settings["Encoder"] = "Null"
 user_settings = {}
 
 accuracy = StringVar()
 classifier = StringVar()
 classifier1 = StringVar()
 
+Encoderoptn = StringVar()
+Encoderoptn.set("OHE")   
+Encoderoptn_select = StringVar()
+Encoderoptn_select.set(None)
 def classifier_selection():
     global selectedclassifier 
     classifierframe = LabelFrame(root,text="Choose the classifier",pady=10)
@@ -121,9 +128,88 @@ def file_selection():
             data_path.delete(0,END)
             data_path.insert(0,str(paths[0]))
             file_path_data.set(paths[0])
+        checks.ensure_header(paths[0])
+        file_check()
             
-        
-
+    def file_check():
+        columnVar = StringVar()                        
+        global paths
+        if(not (paths[0] == '')):
+            if((not checks.contains_text_check(paths[0])) and (checks.getTextcols(paths[0]) == [])):
+                    data = checks.ensure_numeric_labels(paths[0])
+            if((not checks.contains_text_check(paths[0])) and (checks.getTextcols(paths[0]) != [])):                   
+                ErrorWindow = Toplevel(pady=10,padx=5)
+                ErrorWindow.grab_set()
+                ErrorWindow.title("Encoder Window")     
+                OHE_cols = []
+                LE_cols = []           
+                Colselect = Entry(ErrorWindow,textvariable=columnVar,state='readonly')
+                columns = checks.getTextcols(paths[0]) 
+                def encselect():
+                    if(Encoderoptn.get() == "OHE"):
+                        settings["Encoder"] = "OHE"
+                        R1.config(state=DISABLED)
+                        R2.config(state=DISABLED)
+                        B.config(state = DISABLED)
+                        Close.config(state=NORMAL) 
+                    elif(Encoderoptn.get() == "LE"):
+                        settings["Encoder"] = "LE"
+                        R1.config(state=DISABLED)
+                        R2.config(state=DISABLED) 
+                        B.config(state = DISABLED)
+                        Close.config(state=NORMAL) 
+                    elif(Encoderoptn.get() == "OHE/LE"):
+                        settings["Encoder"] = "OHE/LE"
+                        columnVar.set(columns[0])
+                        R1.config(state=NORMAL)
+                        R2.config(state=NORMAL)
+                        B.config(state = NORMAL)
+                        Close.config(state = DISABLED)
+                    else:
+                        pass
+                
+                def encselect2(columns):                    
+                    choice = Encoderoptn_select.get() 
+                    if(choice == "OHE"):
+                        OHE_cols.append(int(columnVar.get()))
+                    elif(choice == "LE"):
+                        LE_cols.append(int(columnVar.get()))
+                    else:
+                        pass 
+                    columns = np.setdiff1d(np.setdiff1d(columns,OHE_cols),LE_cols)                                
+                    if(columns.size == 0):
+                        columnVar.set(None) 
+                        settings["Encoder_OHE"] = OHE_cols
+                        settings["Encoder_LE"] = LE_cols 
+                        B.config(state=DISABLED)
+                        Close.config(state = NORMAL)                      
+                    else:                        
+                        columnVar.set(columns[0])                    
+                    Encoderoptn_select.set(None)
+                    """print(columns)
+                    print("--------")
+                    print(OHE_cols)
+                    print("--------")
+                    print(LE_cols)
+                    print("--------")
+                    print("--------")"""
+                B = Button(ErrorWindow,text="Submit",command=lambda:encselect2(columns),state=DISABLED)
+                R1 = Radiobutton(ErrorWindow,text="Text labels do not have a relationship",variable=Encoderoptn_select,value="OHE",state=DISABLED)
+                R2 = Radiobutton(ErrorWindow,text="Text labels do have a relationship",variable = Encoderoptn_select,value="LE",state=DISABLED)                                                                
+                Close = Button(ErrorWindow,text="Close Window",command=ErrorWindow.destroy)
+                Radiobutton(ErrorWindow,text="Text labels do not have a relationship",variable=Encoderoptn,value="OHE",command=encselect).pack(anchor=W)
+                Radiobutton(ErrorWindow,text="Text labels do have a relationship",variable = Encoderoptn,value="LE",command=encselect).pack(anchor=W)
+                if(len(columns) > 20):
+                    Radiobutton(ErrorWindow,text="Choose for each column seperately",variable = Encoderoptn,value="OHE/LE",state=DISABLED).pack(anchor=W)
+                else:
+                    Radiobutton(ErrorWindow,text="Choose for each column seperately",variable = Encoderoptn,value="OHE/LE",state=NORMAL,command=encselect).pack(anchor=W)
+                Label(ErrorWindow,text="Column").pack(anchor=W,pady=10)                
+                Colselect.pack(anchor=W,pady=5)
+                R1.pack(anchor=W)
+                R2.pack(anchor=W)
+                B.pack(anchor=S,pady=5)
+                Close.pack(anchor=S,pady=10)
+      
     def label_openfile():
         global paths
         root.filename = filedialog.askopenfilename(initialdir="/", title="Select Labels for Classification", filetypes=(("csv files", "*.csv"),("all files", "*.*")))   
@@ -132,6 +218,8 @@ def file_selection():
             label_path.delete(0,END)
             label_path.insert(0,str(paths[1]))
             file_path_labels.set(paths[1])
+        checks.ensure_header(paths[1])
+        file_check()
             
     Radiobutton(fileframe,text="Data and Labels in single file",variable=fileoptn,value="One file",command=lambda :file_number_choose(fileoptn)).pack(anchor=W)
     Radiobutton(fileframe,text="Data and Labels as seperate files",variable = fileoptn,value="Two files",command=lambda :file_number_choose(fileoptn)).pack(anchor=W)
@@ -144,12 +232,14 @@ def file_selection():
     label_button.pack(padx=5,pady=10,anchor=W)
     label_path.pack(padx=5,pady=10,anchor=W)
     Insights_button.pack(padx=5,anchor=S)
+    
     def insight_check(self):
-        if((len(paths[1]) >= 2 and fileoptn.get() == "Two files") or (len(paths[0]) >= 2 and fileoptn.get() == "One file")):
+        if((len(paths[1]) >= 2 and fileoptn.get() == "Two files") or
+            (len(paths[0]) >= 2 and fileoptn.get() == "One file")):
             Insights_button.config(state=NORMAL)
         else:
             Insights_button.config(state=DISABLED)
-    fileframe.bind("<Enter>",insight_check)
+    root.bind("<Enter>",insight_check,add=True)
     fileframe.pack_propagate(0)
     fileframe.pack()
 
@@ -180,11 +270,12 @@ def click_button():
     myButton = Button(root, text="Classify", state=DISABLED,command=classify)
     
     def button_check(self):
-        if((len(paths[1]) >= 2 and fileoptn.get() == "Two files") or (len(paths[0]) >= 2 and fileoptn.get() == "One file")):
+        if((len(paths[1]) >= 2 and fileoptn.get() == "Two files") or
+            (len(paths[0]) >= 2 and fileoptn.get() == "One file")):
             myButton.config(state=NORMAL)
         else:
             myButton.config(state=DISABLED)
-    root.bind("<Enter>",button_check)    
+    root.bind("<Enter>",button_check,add=True)    
     myButton.pack(pady=10)
 
 def write_settings():
@@ -202,7 +293,7 @@ def write_settings():
     f.close() 
 
 def finalize():
-    Brains.classify(paths,user_settings,Settings.classifier_settings)
+    Brains.classify(paths)
     
     with open('results.json','r') as f:
        results = json.load(f)

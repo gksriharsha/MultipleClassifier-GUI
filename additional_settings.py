@@ -116,5 +116,7 @@ def additional_settings(value):
         MLP(settings_window)
     else:
         pass
-        
+    
+    with open('settings.json','w+') as f:
+        f.write(json.dumps(settings,indent=4))    
     

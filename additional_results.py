@@ -41,6 +41,8 @@ def showresults():
     
     i = 3
     for key,value in results.items():
+        if(key == "selected classifier"):
+            pass
         Label(summaryframe,text=key).grid(row=i,column=0,pady=5)
         Label(summaryframe,text=value).grid(row=i,column=1,pady=5)
         i = i+1
