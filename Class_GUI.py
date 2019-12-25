@@ -2,14 +2,15 @@ from tkinter import *
 from tkinter import filedialog
 from tkinter import ttk
 import numpy as np
-#from ttkthemes import themed_tk as tk
+from ttkthemes import themed_tk as tk
 import json
 import Brains
 import DatasetInsights as insights
 import additional_settings as Settings
 import additional_results as results
 import FileChecks as checks
-root = Tk()
+root = tk.ThemedTk()
+root.set_theme('plastik')
 root.title("Classification Selection Tool")
 root.geometry("350x700")
 #root.resizable(False,False)
@@ -44,7 +45,7 @@ Encoderoptn_select = StringVar()
 Encoderoptn_select.set(None)
 def classifier_selection():
     global selectedclassifier 
-    classifierframe = LabelFrame(root,text="Choose the classifier",pady=10)
+    classifierframe = ttk.LabelFrame(root,text="Choose the classifier")
     classifierframe.config(height=height_widget,width=width_widget)
     
 
@@ -80,7 +81,7 @@ def classifier_selection():
         settings["Classifier settings"] = classifier_settings
 
     for classifier,value in classifiers:
-        Radiobutton(classifierframe,text=classifier, variable=selectedclassifier,value=value,command=radio_settings).pack(anchor=W)
+        ttk.Radiobutton(classifierframe,text=classifier, variable=selectedclassifier,value=value,command=radio_settings).pack(pady=5,anchor=W)
     
     def settings_clicked():
         f = open("settings.json",'w+')
@@ -88,7 +89,7 @@ def classifier_selection():
         f.write(json.dumps(settings,indent=4))
         f.close()
         Settings.additional_settings(selectedclassifier.get()) 
-    Settings_button = Button(classifierframe,text="Additional Settings",
+    Settings_button = ttk.Button(classifierframe,text="Additional Settings",
                      command=settings_clicked,state=DISABLED)
     Settings_button.pack(anchor=E,padx=10)
 
@@ -98,7 +99,7 @@ def classifier_selection():
 
 def file_selection(): 
 
-    fileframe = LabelFrame(root,text="Classifier Data Setup",pady=10)
+    fileframe = ttk.LabelFrame(root,text="Classifier Data Setup")
     fileframe.config(height=300,width=width_widget)
 
     def file_number_choose(fileoptn):  
@@ -117,8 +118,8 @@ def file_selection():
             paths = [' ']*2                   
     file_path_data = StringVar()
     file_path_labels = StringVar()
-    data_path = Entry(fileframe,state='readonly',relief=SUNKEN,width=80,textvariable=file_path_data)
-    label_path = Entry(fileframe,state='readonly',relief=SUNKEN,width=80,textvariable=file_path_labels)
+    data_path = ttk.Entry(fileframe,state='readonly',width=80,textvariable=file_path_data)
+    label_path = ttk.Entry(fileframe,state='readonly',width=80,textvariable=file_path_labels)
 
     def data_openfile():
         global paths
@@ -128,7 +129,8 @@ def file_selection():
             data_path.delete(0,END)
             data_path.insert(0,str(paths[0]))
             file_path_data.set(paths[0])
-        checks.ensure_header(paths[0])
+        if(not (paths[0] == '')):
+            checks.ensure_header(paths[0])
         file_check()
             
     def file_check():
@@ -193,17 +195,17 @@ def file_selection():
                     print(LE_cols)
                     print("--------")
                     print("--------")"""
-                B = Button(ErrorWindow,text="Submit",command=lambda:encselect2(columns),state=DISABLED)
-                R1 = Radiobutton(ErrorWindow,text="Text labels do not have a relationship",variable=Encoderoptn_select,value="OHE",state=DISABLED)
-                R2 = Radiobutton(ErrorWindow,text="Text labels do have a relationship",variable = Encoderoptn_select,value="LE",state=DISABLED)                                                                
-                Close = Button(ErrorWindow,text="Close Window",command=ErrorWindow.destroy)
-                Radiobutton(ErrorWindow,text="Text labels do not have a relationship",variable=Encoderoptn,value="OHE",command=encselect).pack(anchor=W)
-                Radiobutton(ErrorWindow,text="Text labels do have a relationship",variable = Encoderoptn,value="LE",command=encselect).pack(anchor=W)
+                B = ttk.Button(ErrorWindow,text="Submit",command=lambda:encselect2(columns),state=DISABLED)
+                R1 = ttk.Radiobutton(ErrorWindow,text="Text labels do not have a relationship",variable=Encoderoptn_select,value="OHE",state=DISABLED)
+                R2 = ttk.Radiobutton(ErrorWindow,text="Text labels do have a relationship",variable = Encoderoptn_select,value="LE",state=DISABLED)                                                                
+                Close = ttk.Button(ErrorWindow,text="Close Window",command=ErrorWindow.destroy)
+                ttk.Radiobutton(ErrorWindow,text="Text labels do not have a relationship",variable=Encoderoptn,value="OHE",command=encselect).pack(anchor=W)
+                ttk.Radiobutton(ErrorWindow,text="Text labels do have a relationship",variable = Encoderoptn,value="LE",command=encselect).pack(anchor=W)
                 if(len(columns) > 20):
-                    Radiobutton(ErrorWindow,text="Choose for each column seperately",variable = Encoderoptn,value="OHE/LE",state=DISABLED).pack(anchor=W)
+                    ttk.Radiobutton(ErrorWindow,text="Choose for each column seperately",variable = Encoderoptn,value="OHE/LE",state=DISABLED).pack(anchor=W)
                 else:
-                    Radiobutton(ErrorWindow,text="Choose for each column seperately",variable = Encoderoptn,value="OHE/LE",state=NORMAL,command=encselect).pack(anchor=W)
-                Label(ErrorWindow,text="Column").pack(anchor=W,pady=10)                
+                    ttk.Radiobutton(ErrorWindow,text="Choose for each column seperately",variable = Encoderoptn,value="OHE/LE",state=NORMAL,command=encselect).pack(anchor=W)
+                ttk.Label(ErrorWindow,text="Column").pack(anchor=W,pady=10)                
                 Colselect.pack(anchor=W,pady=5)
                 R1.pack(anchor=W)
                 R2.pack(anchor=W)
@@ -218,15 +220,16 @@ def file_selection():
             label_path.delete(0,END)
             label_path.insert(0,str(paths[1]))
             file_path_labels.set(paths[1])
-        checks.ensure_header(paths[1])
+        if(not (paths[0] == '')):
+            checks.ensure_header(paths[1])
         file_check()
             
-    Radiobutton(fileframe,text="Data and Labels in single file",variable=fileoptn,value="One file",command=lambda :file_number_choose(fileoptn)).pack(anchor=W)
-    Radiobutton(fileframe,text="Data and Labels as seperate files",variable = fileoptn,value="Two files",command=lambda :file_number_choose(fileoptn)).pack(anchor=W)
+    ttk.Radiobutton(fileframe,text="Data and Labels in single file",variable=fileoptn,value="One file",command=lambda :file_number_choose(fileoptn)).pack(anchor=W)
+    ttk.Radiobutton(fileframe,text="Data and Labels as seperate files",variable = fileoptn,value="Two files",command=lambda :file_number_choose(fileoptn)).pack(anchor=W)
 
-    data_button = Button(fileframe,text="Open Data file",command=data_openfile)
-    label_button = Button(fileframe,text="Open Labels file",command=label_openfile)
-    Insights_button = Button(fileframe,text="Dataset Properties",command=lambda: insights.getInsights(paths[0]),state=DISABLED)
+    data_button = ttk.Button(fileframe,text="Open Data file",command=data_openfile)
+    label_button = ttk.Button(fileframe,text="Open Labels file",command=label_openfile)
+    Insights_button = ttk.Button(fileframe,text="Dataset Properties",command=lambda: insights.getInsights(paths[0]),state=DISABLED)
     data_button.pack(padx=5,pady=10,anchor=W)
     data_path.pack(padx=5,pady=10,anchor=W)
     label_button.pack(padx=5,pady=10,anchor=W)
@@ -246,19 +249,24 @@ def file_selection():
 def mini_results():
     global accuracy
     
-    miniresultsFrame = LabelFrame(root,text="Results",padx=10,pady=10)  
+    miniresultsFrame = ttk.LabelFrame(root,text="Results")  
     miniresultsFrame.config(height=100,width=width_widget)
     
     with open('settings.json') as f:
         settings = json.load(f)    
         
-    Label(miniresultsFrame,text="Classifier used:    ").grid(row=0,column=0,pady=10)
+    ttk.Label(miniresultsFrame,text="Classifier used:    ").grid(row=0,column=0,pady=10)
     Entry(miniresultsFrame,textvariable=classifier,state='readonly',width=10,relief=FLAT).grid(row=0,column=1,pady=10)
     Entry(miniresultsFrame,textvariable=classifier1,state='readonly',width=10,relief=FLAT).grid(row=0,column=2,pady=10)
-    Label(miniresultsFrame,text="Accuracy:    ").grid(row=1,column=0)
+    ttk.Label(miniresultsFrame,text="Accuracy:    ").grid(row=1,column=0)
     Entry(miniresultsFrame,textvariable=accuracy,relief=FLAT,state='readonly').grid(row=1,column=1,pady=10,columnspan=2)
     
-    Button(miniresultsFrame,text="Detailed Results",command=lambda: results.showresults()).grid(row=2,column=0,columnspan=3)
+    resultsbutton = ttk.Button(miniresultsFrame,text="Detailed Results",command=lambda:results.showresults(),state=DISABLED)
+    resultsbutton.grid(row=2,column=0,columnspan=3)
+       
+    def results_check(self):
+        resultsbutton.config(state=NORMAL)
+    root.bind('<<Activate Results>>',results_check)
     miniresultsFrame.pack_propagate(0)
     #miniresultsFrame.grid_propagate(False)
     miniresultsFrame.pack()      
@@ -267,7 +275,7 @@ def click_button():
         write_settings()
         finalize()
     
-    myButton = Button(root, text="Classify", state=DISABLED,command=classify)
+    myButton = ttk.Button(root, text="Classify", state=DISABLED,command=classify)
     
     def button_check(self):
         if((len(paths[1]) >= 2 and fileoptn.get() == "Two files") or
@@ -294,7 +302,7 @@ def write_settings():
 
 def finalize():
     Brains.classify(paths)
-    
+    root.event_generate('<<Activate Results>>',when='tail')
     with open('results.json','r') as f:
        results = json.load(f)
        

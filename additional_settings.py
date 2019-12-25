@@ -1,5 +1,6 @@
 from tkinter import *
 import json
+from tkinter import ttk
 try:
     with open('settings.json') as f:
         settings = json.load(f)
@@ -37,11 +38,11 @@ def SVM(settings_window):
         classifier_settings["tol"] = tol_SVM.get()
         print(json.dumps(classifier_settings,indent=4))
         settings_window.destroy()
-    Label(settings_window,text="Degree:    ").grid(row=0,column=0)
-    Entry(settings_window,textvariable=degree_SVM,validate="key",vcmd=(reg,'%P')).grid(row=0,column=1,pady=10)
-    Label(settings_window,text="Tolerance:    ").grid(row=1,column=0)
-    Entry(settings_window,textvariable=tol_SVM,validate="key",vcmd=(reg2,'%P')).grid(row=1,column=1,pady=10)
-    Button(settings_window,text="Save and close",command=SVM_close).grid(row=2,column=0,columnspan=2,pady=10)
+    ttk.Label(settings_window,text="Degree:    ").grid(row=0,column=0)
+    ttk.Entry(settings_window,textvariable=degree_SVM,validate="key",validatecommand=(reg,'%P')).grid(row=0,column=1,pady=10)
+    ttk.Label(settings_window,text="Tolerance:    ").grid(row=1,column=0)
+    ttk.Entry(settings_window,textvariable=tol_SVM,validate="key",validatecommand=(reg2,'%P')).grid(row=1,column=1,pady=10)
+    ttk.Button(settings_window,text="Save and close",command=SVM_close).grid(row=2,column=0,columnspan=2,pady=10)
 
 def KNN(settings_window):
     K_KNN = IntVar()
@@ -56,16 +57,16 @@ def KNN(settings_window):
         classifier_settings['weights'] = fn.get()
         print(json.dumps(classifier_settings,indent=4))
         settings_window.destroy()
-    Label(settings_window,text="N neighbors:    ").grid(row=0,column=0)
-    Entry(settings_window,textvariable=K_KNN,validate="key",vcmd=(reg,'%P')).grid(row=0,column=1,pady=10)
-    Label(settings_window,text="Weights :    ").grid(row=1,column=0)
+    ttk.Label(settings_window,text="N neighbors:    ").grid(row=0,column=0)
+    ttk.Entry(settings_window,textvariable=K_KNN,validate="key",validatecommand=(reg,'%P')).grid(row=0,column=1,pady=10)
+    ttk.Label(settings_window,text="Weights :    ").grid(row=1,column=0)
     weights =  [
                     "uniform", 
                     "distance"                                           
                 ]            
     fn.set(weights[0])
-    OptionMenu(settings_window, fn, *weights).grid(row=1,column=1,pady=10)
-    Button(settings_window,text="Save and close",command=KNN_close).grid(row=2,column=0,columnspan=2,pady=10)
+    ttk.OptionMenu(settings_window, fn, *weights).grid(row=1,column=1,pady=10)
+    ttk.Button(settings_window,text="Save and close",command=KNN_close).grid(row=2,column=0,columnspan=2,pady=10)
 
 def MLP(settings_window):
     fn = StringVar()
@@ -83,7 +84,7 @@ def MLP(settings_window):
         classifier_settings["Tolerance"] = tol_MLP.get()
         print(json.dumps(classifier_settings,indent=4))
         settings_window.destroy()
-    Label(settings_window,text="Activation func. :    ").grid(row=0,column=0)
+    ttk.Label(settings_window,text="Activation func. :    ").grid(row=0,column=0)
     activation =  [
                     "relu", 
                     "tanh", 
@@ -91,12 +92,12 @@ def MLP(settings_window):
                     "identity"                           
                 ]            
     fn.set(classifier_settings['Activation Func.'])
-    OptionMenu(settings_window, fn, *activation).grid(row=0,column=1,pady=10)
-    Label(settings_window,text="Max Iterations:    ").grid(row=1,column=0,pady=10)
-    Entry(settings_window,textvariable=Iter,validate="key",vcmd=(reg,'%P')).grid(row=1,column=1,pady=10)
-    Label(settings_window,text="Tolerance:    ").grid(row=2,column=0,pady=10)
-    Entry(settings_window,textvariable=tol_MLP,validate="key",vcmd=(reg2,'%P')).grid(row=2,column=1,pady=10)
-    Button(settings_window,text="Save and close",command=MLP_close).grid(row=3,column=0,columnspan=2,pady=10)
+    ttk.OptionMenu(settings_window, fn, *activation).grid(row=0,column=1,pady=10)
+    ttk.Label(settings_window,text="Max Iterations:    ").grid(row=1,column=0,pady=10)
+    ttk.Entry(settings_window,textvariable=Iter,validate="key",validatecommand=(reg,'%P')).grid(row=1,column=1,pady=10)
+    ttk.Label(settings_window,text="Tolerance:    ").grid(row=2,column=0,pady=10)
+    ttk.Entry(settings_window,textvariable=tol_MLP,validate="key",validatecommand=(reg2,'%P')).grid(row=2,column=1,pady=10)
+    ttk.Button(settings_window,text="Save and close",command=MLP_close).grid(row=3,column=0,columnspan=2,pady=10)
 
 def additional_settings(value):
     global classifier_settings

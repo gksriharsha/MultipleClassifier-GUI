@@ -51,7 +51,6 @@ def classify(paths):
     classifier_settings = settings['Classifier settings']
     Encoder_settings = settings['Encoder']
     if(Encoder_settings != "Null"):
-        raw_file = pd.read_csv(paths[0])
         if(Encoder_settings == "OHE"):
             raw_file = checks.text2numberOHE(paths[0])
         elif(Encoder_settings == "LE"):
@@ -61,11 +60,13 @@ def classify(paths):
             raw_file = checks.text2number(data=raw_file1,columns=list(settings["Encoder_LE"]))
         else:
             pass
-        raw_file.to_csv('data.csv',index_label=0)        
+        raw_file.to_csv('data.csv',index_label=0)
+    else:
+        raw_file = pd.read_csv(paths[0])        
     if(user_settings['Number of files'] == "One file"):            
-        dfs = np.split(raw_file,[cols-2],axis=1)
-        data = dfs[0]
-        labels = dfs[1]            
+        #dfs = np.split(raw_file,[cols-2],axis=1)
+        data = raw_file.iloc[:,:-1]
+        labels = raw_file.iloc[:,-1]          
     else:
         labels = pd.read_csv(paths[1]).to_frame()
         if(labels.apply(np.isreal).sum != len(labels)):
@@ -93,7 +94,7 @@ def classify(paths):
     json.dump(conf_matrix.tolist(),codecs.open('/conf.json','w', encoding='utf-8'), separators=(',', ':'), sort_keys=True, indent=4)
     write_results()
     print("End of classification")
-
+    
 def classify_KNN(classifier_settings):
     global classifier_results,data_test,data_train,label_test,label_train,pred
     from sklearn.neighbors import KNeighborsClassifier    

@@ -1,7 +1,7 @@
 import matplotlib as m
 import pandas as pd
 import numpy as np
-
+from tkinter import ttk
 from tkinter import *
 import matplotlib
 matplotlib.use("TkAgg")
@@ -19,7 +19,7 @@ def getInsights(path):
     Total_elts = dataset.shape[0]*dataset.shape[1]
     scaled = (dataset.max().max() <= 3)
     
-    BasicFrame = LabelFrame(Insights_window,text = "Basic Insights of Dataset",padx=10,pady=10)
+    BasicFrame = ttk.LabelFrame(Insights_window,text = "Basic Insights of Dataset")
     Label(BasicFrame,text="Rows:    ").grid(row=0,column=0,pady=10)
     Label(BasicFrame,text=str(dataset.shape[0])).grid(row=0,column=1,pady=10)
     Label(BasicFrame,text="Columns:    ").grid(row=1,column=0,pady=10)
@@ -34,7 +34,7 @@ def getInsights(path):
     Label(BasicFrame,text=scaled).grid(row=4,column=1,pady=10)    
     BasicFrame.pack()
     
-    PropertiesFrame = LabelFrame(Insights_window,text="Descriptive Statistics of data",padx=10,pady=10)
+    PropertiesFrame = ttk.LabelFrame(Insights_window,text="Descriptive Statistics of data")
     Columns = list(dataset.columns)
     Selected_column = StringVar()
     Mean = StringVar()
@@ -66,7 +66,7 @@ def getInsights(path):
         #dataset.plot(y=Selected_column.get()) 
            
     Label(PropertiesFrame,text="Select Column for analysis:    ").grid(row=0,column=0,pady=10)
-    OptionMenu(PropertiesFrame, Selected_column, *Columns,command= columnproperties).grid(row=0,column=1,pady=10)
+    ttk.OptionMenu(PropertiesFrame, Selected_column, *Columns,command= columnproperties).grid(row=0,column=1,pady=10)
     Label(PropertiesFrame,text="Mean:    ").grid(row=1,column=0,pady=10)
     Entry(PropertiesFrame,textvariable=Mean,relief=FLAT,state='readonly').grid(row=1,column=1,pady=10)
     Label(PropertiesFrame,text="Standard Deviation:    ").grid(row=2,column=0,pady=10)
@@ -79,6 +79,6 @@ def getInsights(path):
     Entry(PropertiesFrame,textvariable=Median,relief=FLAT,state='readonly').grid(row=4,column=1,pady=10)
     Label(PropertiesFrame,text="Unique Values:    ").grid(row=5,column=0,pady=10)
     Entry(PropertiesFrame,textvariable=Nunique,relief=FLAT,state='readonly').grid(row=5,column=1,pady=10)
-    Button(PropertiesFrame,text="Plot",command=lambda:plotcolumn()).grid(columnspan=2,row=10)
+    ttk.Button(PropertiesFrame,text="Plot",command=lambda:plotcolumn()).grid(columnspan=2,row=10)
         
     PropertiesFrame.pack()
