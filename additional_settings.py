@@ -36,7 +36,7 @@ def SVM(settings_window):
         classifier_settings = {}
         classifier_settings["Degree"] = degree_SVM.get()        
         classifier_settings["tol"] = tol_SVM.get()
-        print(json.dumps(classifier_settings,indent=4))
+        #print(json.dumps(classifier_settings,indent=4))
         settings_window.destroy()
     ttk.Label(settings_window,text="Degree:    ").grid(row=0,column=0)
     ttk.Entry(settings_window,textvariable=degree_SVM,validate="key",validatecommand=(reg,'%P')).grid(row=0,column=1,pady=10)
@@ -55,7 +55,7 @@ def KNN(settings_window):
         classifier_settings = {}
         classifier_settings['K'] = K_KNN.get()
         classifier_settings['weights'] = fn.get()
-        print(json.dumps(classifier_settings,indent=4))
+        #print(json.dumps(classifier_settings,indent=4))
         settings_window.destroy()
     ttk.Label(settings_window,text="N neighbors:    ").grid(row=0,column=0)
     ttk.Entry(settings_window,textvariable=K_KNN,validate="key",validatecommand=(reg,'%P')).grid(row=0,column=1,pady=10)
@@ -82,7 +82,7 @@ def MLP(settings_window):
         classifier_settings["Activation Func."] = fn.get()
         classifier_settings["Iterations"] = Iter.get()
         classifier_settings["Tolerance"] = tol_MLP.get()
-        print(json.dumps(classifier_settings,indent=4))
+        #print(json.dumps(classifier_settings,indent=4))
         settings_window.destroy()
     ttk.Label(settings_window,text="Activation func. :    ").grid(row=0,column=0)
     activation =  [

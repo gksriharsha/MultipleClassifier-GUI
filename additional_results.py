@@ -25,8 +25,9 @@ def showresults():
             Label(summaryframe,text=value).grid(row=i,column=1,pady=5)
             i = i+1
     except Exception as e:
-        print("Exception raised")
-        print(e)
+        #print("Exception raised")
+        #print(e)
+        pass
     
     summaryframe.pack(padx=10,pady=10)
     

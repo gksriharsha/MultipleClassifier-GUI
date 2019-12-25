@@ -85,7 +85,7 @@ def classifier_selection():
     
     def settings_clicked():
         f = open("settings.json",'w+')
-        print(json.dumps(settings,indent=4)) 
+        #print(json.dumps(settings,indent=4)) 
         f.write(json.dumps(settings,indent=4))
         f.close()
         Settings.additional_settings(selectedclassifier.get()) 
@@ -296,7 +296,7 @@ def write_settings():
     else:
         settings['Classifier settings'] = Settings.classifier_settings
     f = open("settings.json",'w+')
-    print(json.dumps(settings,indent=4)) 
+    #print(json.dumps(settings,indent=4)) 
     f.write(json.dumps(settings,indent=4))
     f.close() 
 

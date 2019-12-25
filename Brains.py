@@ -93,7 +93,7 @@ def classify(paths):
     conf_matrix = multilabel_confusion_matrix(label_test,pred)
     json.dump(conf_matrix.tolist(),codecs.open('/conf.json','w', encoding='utf-8'), separators=(',', ':'), sort_keys=True, indent=4)
     write_results()
-    print("End of classification")
+    #print("End of classification")
     
 def classify_KNN(classifier_settings):
     global classifier_results,data_test,data_train,label_test,label_train,pred
