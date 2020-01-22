@@ -93,25 +93,25 @@ def ensure_header(path=None,Data=None):
         dataset.columns = Column_headers
     except Exception as e:
         pass
-    dataset.to_csv(path,index_label=False)
+    dataset.to_csv(path,index=False)
     #return dataset
     
 def ensure_numeric_labels(path):
-    dataset = pd.read_csv(path)
+    dataset = pd.read_csv(path,index_col=False)
     labels = dataset.iloc[:,-1].to_frame()
     dataset = dataset.iloc[:,:-1]
     if(labels.apply(np.isreal).sum != len(labels)):
         (labels,le) = text2number(data=labels,le_data=True)
     
     pd.DataFrame(le.classes_).to_csv('Label_metadata.csv')
-    pd.concat([dataset,labels],axis=1)
-    dataset.to_csv(path,index_label=False)   
+    dataset = pd.concat([dataset,labels],axis=1)
+    dataset.to_csv(path,index=False)   
     
 
 def ensure_no_nans(path):
     dataset = pd.read_csv(path)
     dataset.fillna(dataset.mean())
-    dataset.to_csv(path,index_label=False) 
+    dataset.to_csv(path,index=False) 
 
 def isfileOK_classify(path):
     if(not contains_text_check(path)):
