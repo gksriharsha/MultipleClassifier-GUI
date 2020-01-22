@@ -60,7 +60,7 @@ def classify(paths):
             raw_file = checks.text2number(data=raw_file1,columns=list(settings["Encoder_LE"]))
         else:
             pass
-        raw_file.to_csv('data.csv',index_label=0)
+        raw_file.to_csv('data.csv',index=False)
     else:
         raw_file = pd.read_csv(paths[0])        
     if(user_settings['Number of files'] == "One file"):            
