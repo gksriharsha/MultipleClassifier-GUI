@@ -69,9 +69,9 @@ def contains_text_check(path):
     dataset = pd.read_csv(path)
     textcolumns = dataset.applymap(np.isreal)    
     if(textcolumns.sum().sum() == textcolumns.shape[0]*textcolumns.shape[1]):
-        return True
-    else:
         return False
+    else:
+        return True
     
 def getTextcols(path):
     dataset = pd.read_csv(path)
@@ -106,3 +106,14 @@ def ensure_numeric_labels(path):
     pd.DataFrame(le.classes_).to_csv('Label_metadata.csv')
     pd.concat([dataset,labels],axis=1)
     dataset.to_csv(path,index_label=False)   
+    
+
+def ensure_no_nans(path):
+    dataset = pd.read_csv(path)
+    dataset.fillna(dataset.mean())
+    dataset.to_csv(path,index_label=False) 
+
+def isfileOK_classify(path):
+    if(not contains_text_check(path)):
+        if(True):
+            pass

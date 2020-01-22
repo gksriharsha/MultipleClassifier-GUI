@@ -1,3 +1,8 @@
+import sys,os
+sys.path.append(os.path.join(sys.path[0],'UI'))
+sys.path.append(os.path.join(sys.path[0],'Classification'))
+sys.path.append(os.path.join(sys.path[0],'Checks'))
+
 from tkinter import *
 from tkinter import filedialog
 from tkinter import ttk
@@ -13,7 +18,7 @@ root = tk.ThemedTk()
 root.set_theme('plastik')
 root.title("Classification Selection Tool")
 root.geometry("350x700")
-#root.resizable(False,False)
+root.resizable(False,False)
 height_widget = 175
 width_widget = 250
 
@@ -85,7 +90,6 @@ def classifier_selection():
     
     def settings_clicked():
         f = open("settings.json",'w+')
-        #print(json.dumps(settings,indent=4)) 
         f.write(json.dumps(settings,indent=4))
         f.close()
         Settings.additional_settings(selectedclassifier.get()) 
@@ -137,9 +141,10 @@ def file_selection():
         columnVar = StringVar()                        
         global paths
         if(not (paths[0] == '')):
-            if((not checks.contains_text_check(paths[0])) and (checks.getTextcols(paths[0]) == [])):
+            checks.ensure_no_nans(paths[0])
+            if((checks.contains_text_check(paths[0])) and (checks.getTextcols(paths[0]) == [])):
                     data = checks.ensure_numeric_labels(paths[0])
-            if((not checks.contains_text_check(paths[0])) and (checks.getTextcols(paths[0]) != [])):                   
+            if(( checks.contains_text_check(paths[0])) and (checks.getTextcols(paths[0]) != [])):                   
                 ErrorWindow = Toplevel(pady=10,padx=5)
                 ErrorWindow.grab_set()
                 ErrorWindow.title("Encoder Window")     
@@ -188,13 +193,6 @@ def file_selection():
                     else:                        
                         columnVar.set(columns[0])                    
                     Encoderoptn_select.set(None)
-                    """print(columns)
-                    print("--------")
-                    print(OHE_cols)
-                    print("--------")
-                    print(LE_cols)
-                    print("--------")
-                    print("--------")"""
                 B = ttk.Button(ErrorWindow,text="Submit",command=lambda:encselect2(columns),state=DISABLED)
                 R1 = ttk.Radiobutton(ErrorWindow,text="Text labels do not have a relationship",variable=Encoderoptn_select,value="OHE",state=DISABLED)
                 R2 = ttk.Radiobutton(ErrorWindow,text="Text labels do have a relationship",variable = Encoderoptn_select,value="LE",state=DISABLED)                                                                
@@ -251,10 +249,7 @@ def mini_results():
     
     miniresultsFrame = ttk.LabelFrame(root,text="Results")  
     miniresultsFrame.config(height=100,width=width_widget)
-    
-    with open('settings.json') as f:
-        settings = json.load(f)    
-        
+            
     ttk.Label(miniresultsFrame,text="Classifier used:    ").grid(row=0,column=0,pady=10)
     Entry(miniresultsFrame,textvariable=classifier,state='readonly',width=10,relief=FLAT).grid(row=0,column=1,pady=10)
     Entry(miniresultsFrame,textvariable=classifier1,state='readonly',width=10,relief=FLAT).grid(row=0,column=2,pady=10)
@@ -295,12 +290,16 @@ def write_settings():
         pass
     else:
         settings['Classifier settings'] = Settings.classifier_settings
+    try:
+        classifier_settings = settings['Classifier settings']
+    except:
+        settings['Classifier settings'] = {}
     f = open("settings.json",'w+')
-    #print(json.dumps(settings,indent=4)) 
     f.write(json.dumps(settings,indent=4))
     f.close() 
 
 def finalize():
+   
     Brains.classify(paths)
     root.event_generate('<<Activate Results>>',when='tail')
     with open('results.json','r') as f:

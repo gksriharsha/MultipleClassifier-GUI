@@ -167,10 +167,12 @@ def auto_classify(user_settings,paths):
     settings['Classifier settings'] = classifier_settings
     settings['User selected settings'] = user_settings
     write_settings(settings)  
+
 def write_settings(settings):
     f = open("settings.json",'w+') 
     f.write(json.dumps(settings,indent=4))
     f.close() 
+
 def write_results():
     f=open("results.json","w+")
     f.write(json.dumps(classifier_results,indent=4))
