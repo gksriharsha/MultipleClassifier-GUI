@@ -4,3 +4,6 @@
 *build*
 *.spec
 *dist*
+*2020*
+*mdl*
+*csv*
