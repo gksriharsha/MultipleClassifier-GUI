@@ -8,7 +8,7 @@ from sklearn.metrics import recall_score
 from sklearn.metrics import multilabel_confusion_matrix
 import json,codecs
 import pickle
-import FileChecks as checks
+import Checks.FileChecks as checks
 
 raw_file = []
 data_test = []

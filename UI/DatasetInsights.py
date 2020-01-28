@@ -2,7 +2,7 @@ import matplotlib as m
 import pandas as pd
 import numpy as np
 from tkinter import ttk
-from tkinter import *
+from tkinter import Label,StringVar,IntVar,Toplevel,Entry,FLAT
 import matplotlib
 matplotlib.use("TkAgg")
 

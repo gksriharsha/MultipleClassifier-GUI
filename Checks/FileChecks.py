@@ -10,7 +10,7 @@ def text2number(path=None,columns = None,data = None,le_data = False):
     else:
         dataset = data
     
-    column_names = list(dataset.columns)
+    #column_names = list(dataset.columns)
     if(columns == None):        
         textcolumns = dataset.applymap(np.isreal)        
         for i in range(dataset.shape[1]):
@@ -84,14 +84,14 @@ def getTextcols(path):
 
 def ensure_header(path=None,Data=None):
     dataset = pd.read_csv(path)
-    header_names = list(dataset.columns)
+    #header_names = list(dataset.columns)
     try:
-        test = float(header_names[3])
+        #test = float(header_names[3])
         Column_headers = []
         for i in range(dataset.shape[1]):
             Column_headers.append('Column '+str(i))
         dataset.columns = Column_headers
-    except Exception as e:
+    except Exception:
         pass
     dataset.to_csv(path,index=False)
     #return dataset

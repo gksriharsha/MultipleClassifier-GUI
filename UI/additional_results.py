@@ -1,4 +1,4 @@
-from tkinter import *
+from tkinter import Label, LabelFrame,Toplevel
 import json,codecs
 import numpy as np
 
@@ -24,7 +24,7 @@ def showresults():
             Label(summaryframe,text=key).grid(row=i,column=0,pady=5)
             Label(summaryframe,text=value).grid(row=i,column=1,pady=5)
             i = i+1
-    except Exception as e:
+    except Exception:
         #print("Exception raised")
         #print(e)
         pass

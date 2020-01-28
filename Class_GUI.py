@@ -1,19 +1,19 @@
 import sys,os
-sys.path.append(os.path.join(sys.path[0],'UI'))
+""" sys.path.append(os.path.join(sys.path[0],'UI'))
 sys.path.append(os.path.join(sys.path[0],'Classification'))
 sys.path.append(os.path.join(sys.path[0],'Checks'))
-
-from tkinter import *
-from tkinter import filedialog
+ """
+#from tkinter import *
+from tkinter import filedialog, StringVar, NORMAL,DISABLED,N,E,W,S,END,Toplevel,Entry,FLAT
 from tkinter import ttk
 import numpy as np
 from ttkthemes import themed_tk as tk
 import json
-import Brains
-import DatasetInsights as insights
-import additional_settings as Settings
-import additional_results as results
-import FileChecks as checks
+import Classification.Brains as Brains
+import UI.DatasetInsights as insights
+import UI.additional_settings as Settings
+import UI.additional_results as results
+import Checks.FileChecks as checks
 root = tk.ThemedTk()
 root.set_theme('plastik')
 root.title("Classification Selection Tool")
@@ -143,7 +143,7 @@ def file_selection():
         if(not (paths[0] == '')):
             checks.ensure_no_nans(paths[0])
             if((checks.contains_text_check(paths[0])) and (checks.getTextcols(paths[0]) == [])):
-                    data = checks.ensure_numeric_labels(paths[0])
+                    checks.ensure_numeric_labels(paths[0])
             if(( checks.contains_text_check(paths[0])) and (checks.getTextcols(paths[0]) != [])):                   
                 ErrorWindow = Toplevel(pady=10,padx=5)
                 ErrorWindow.grab_set()

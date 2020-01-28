@@ -1,4 +1,4 @@
-from tkinter import *
+from tkinter import StringVar,IntVar,Toplevel,DoubleVar
 import json
 from tkinter import ttk
 try:
