@@ -1,8 +1,5 @@
 import sys,os
-""" sys.path.append(os.path.join(sys.path[0],'UI'))
-sys.path.append(os.path.join(sys.path[0],'Classification'))
-sys.path.append(os.path.join(sys.path[0],'Checks'))
- """
+
 #from tkinter import *
 from tkinter import filedialog, StringVar, NORMAL,DISABLED,N,E,W,S,END,Toplevel,Entry,FLAT
 from tkinter import ttk
